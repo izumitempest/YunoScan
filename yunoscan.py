@@ -52,6 +52,55 @@ def enumerate_users_author_id(url, max_users=10):
         except Exception as e:
             print(f"[!] Error at ID {i}: {e}")
 
+def passive_plugin_theme_detection(url):
+    print("\n[*] Performing passive detection of plugins/themes...")
+    try:
+        res = requests.get(url, timeout=10)
+        plugins = set(re.findall(r'/wp-content/plugins/([^/]+)/', res.text))
+        themes = set(re.findall(r'/wp-content/themes/([^/]+)/', res.text))
+
+        if plugins:
+            print("[+] Detected plugins (passive):")
+            for plugin in plugins:
+                print(f"    - {plugin}")
+        else:
+            print("[-] No plugins found passively.")
+
+        if themes:
+            print("[+] Detected themes (passive):")
+            for theme in themes:
+                print(f"    - {theme}")
+        else:
+            print("[-] No themes found passively.")
+        return plugins, themes
+    except Exception as e:
+        print(f"[!] Error during passive detection: {e}")
+        return set(), set()
+
+plugin_wordlist = ['contact-form-7', 'woocommerce', 'wordfence', 'elementor']
+theme_wordlist = ['astra', 'twentytwentyone', 'hello-elementor', 'generatepress']
+
+def aggressive_plugin_theme_detection(url):
+    print("\n[*] Performing aggressive detection using wordlist...")
+    found_plugins = []
+    found_themes = []
+
+    for plugin in plugin_wordlist:
+        path = f"{url}/wp-content/plugins/{plugin}/"
+        res = requests.get(path)
+        if res.status_code == 200:
+            print(f"[+] Found plugin (aggressive): {plugin}")
+            found_plugins.append(plugin)
+
+    for theme in theme_wordlist:
+        path = f"{url}/wp-content/themes/{theme}/"
+        res = requests.get(path)
+        if res.status_code == 200:
+            print(f"[+] Found theme (aggressive): {theme}")
+            found_themes.append(theme)
+
+    return found_plugins, found_themes
+
 
 def main():
     target = input("[?] Enter the full target URL (e.g., https://example.com): ").strip().rstrip("/")
