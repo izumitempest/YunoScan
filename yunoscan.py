@@ -113,6 +113,10 @@ def main():
         enumerate_users_json_api(target)
         enumerate_users_author_id(target)
         print("\n[*] User enumeration complete.")
+        passive_plugin_theme_detection(target)
+        aggressive_plugin_theme_detection(target)
+        print("\n[*] Plugin and theme detection complete.")
+
     else:
         print("[-] Target does not appear to be a WordPress site.")
 
